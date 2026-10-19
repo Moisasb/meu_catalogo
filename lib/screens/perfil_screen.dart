@@ -1,8 +1,5 @@
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../widgets/app_drawer.dart';
 import 'interesses_screen.dart';
@@ -29,10 +26,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
   final _sobrenomeController = TextEditingController();
   final _emailController = TextEditingController();
 
-  final ImagePicker _seletorImagem = ImagePicker();
-
-  File? _fotoPerfil;
-
   String nomeSalvo = '';
   String sobrenomeSalvo = '';
   String emailSalvo = '';
@@ -43,34 +36,6 @@ class _PerfilScreenState extends State<PerfilScreen> {
     _sobrenomeController.dispose();
     _emailController.dispose();
     super.dispose();
-  }
-
-  // Abre a galeria para selecionar uma foto.
-  Future<void> alterarFoto() async {
-    try {
-      final XFile? imagem = await _seletorImagem.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 85,
-      );
-
-      if (imagem == null || !mounted) return;
-
-      setState(() {
-        _fotoPerfil = File(imagem.path);
-      });
-    } catch (erro, stackTrace) {
-      debugPrint('Erro ao selecionar foto: $erro');
-      debugPrint('$stackTrace');
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao selecionar foto: $erro'),
-          duration: const Duration(seconds: 6),
-        ),
-      );
-    }
   }
 
   void salvarPerfil() {
@@ -145,22 +110,11 @@ class _PerfilScreenState extends State<PerfilScreen> {
                 CircleAvatar(
                   radius: 55,
                   backgroundColor: cores.primaryContainer,
-                  backgroundImage: _fotoPerfil != null
-                      ? FileImage(_fotoPerfil!)
-                      : null,
-                  child: _fotoPerfil == null
-                      ? Icon(
-                          Icons.person,
-                          size: 60,
-                          color: cores.onPrimaryContainer,
-                        )
-                      : null,
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: alterarFoto,
-                  icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('Alterar foto'),
+                  child: Icon(
+                    Icons.person,
+                    size: 60,
+                    color: cores.onPrimaryContainer,
+                  ),
                 ),
               ],
             ),

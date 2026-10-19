@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
-class ConfiguracoesScreen extends StatelessWidget {
+import '../widgets/app_drawer.dart';
+import 'perfil_screen.dart';
+import 'interesses_screen.dart';
+
+class ConfiguracoesScreen extends StatefulWidget {
   const ConfiguracoesScreen({
     super.key,
     required this.modoAtual,
@@ -11,11 +15,76 @@ class ConfiguracoesScreen extends StatelessWidget {
   final void Function(ThemeMode) aoAlterarTema;
 
   @override
+  State<ConfiguracoesScreen> createState() => _ConfiguracoesScreenState();
+}
+
+class _ConfiguracoesScreenState extends State<ConfiguracoesScreen> {
+  // Modo exibido na tela. Ele precisa ficar neste State porque a tela recebe
+  // modoAtual apenas uma vez; sem isso o botão selecionado não mudaria ao tocar.
+  late ThemeMode _modo;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Lê o modo realmente em uso no MaterialApp. O valor recebido pelo
+    // construtor pode estar desatualizado, caso o tema tenha sido alterado
+    // depois que a tela anterior foi criada.
+    _modo =
+        context.findAncestorWidgetOfExactType<MaterialApp>()?.themeMode ??
+        widget.modoAtual;
+  }
+
+  // Navegação do menu lateral: cada opção abre a tela correspondente.
+  // Como já estamos em Configurações, essa opção não faz nada.
+  void navegar(String destino) {
+    if (destino == 'configuracoes') return;
+
+    if (destino == 'inicio') {
+      // Volta até a primeira rota da pilha, que é a Home.
+      Navigator.popUntil(context, (rota) => rota.isFirst);
+      return;
+    }
+
+    final Widget tela;
+
+    switch (destino) {
+      case 'perfil':
+        tela = PerfilScreen(
+          modoAtual: _modo,
+          aoAlterarTema: widget.aoAlterarTema,
+        );
+        break;
+
+      case 'interesses':
+        tela = InteressesScreen(
+          modoAtual: _modo,
+          aoAlterarTema: widget.aoAlterarTema,
+        );
+        break;
+
+      default:
+        return;
+    }
+
+    // pushReplacement troca esta tela pela nova, evitando deixar uma tela de
+    // Configurações antiga na pilha, com o modo selecionado desatualizado.
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => tela));
+  }
+
+  @override
   Widget build(BuildContext context) {
     final cores = Theme.of(context).colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Configurações')),
+
+      // O menu lateral usa ListTile para cada opção, como nas outras telas.
+      drawer: AppDrawer(
+        telaAtual: 'configuracoes',
+        aoSelecionar: navegar,
+      ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -50,9 +119,15 @@ class ConfiguracoesScreen extends StatelessWidget {
                   icon: Icon(Icons.dark_mode),
                 ),
               ],
-              selected: {modoAtual},
+              selected: {_modo},
+
+              // setState atualiza o botão selecionado e o texto desta tela;
+              // o callback avisa o MaterialApp para trocar o tema.
               onSelectionChanged: (novosModos) {
-                aoAlterarTema(novosModos.first);
+                setState(() {
+                  _modo = novosModos.first;
+                });
+                widget.aoAlterarTema(novosModos.first);
               },
             ),
 
@@ -95,7 +170,7 @@ class ConfiguracoesScreen extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
-                  'Modo selecionado: ${modoAtual.name}',
+                  'Modo selecionado: ${_modo.name}',
                   style: TextStyle(
                     color: cores.onPrimaryContainer,
                     fontWeight: FontWeight.bold,

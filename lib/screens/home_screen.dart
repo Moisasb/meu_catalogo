@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/app_drawer.dart';
+import '../widgets/card_resumo.dart';
 import 'perfil_screen.dart';
 import 'interesses_screen.dart';
 import 'configuracoes_screen.dart';
@@ -197,6 +198,44 @@ class HomeScreen extends StatelessWidget {
                 imagem: 'https://image.tmdb.org/t/p/w1280/3S4I5gWnrk6cV783mQto3orO12C.jpg',
               ),
             ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // CardResumo é um widget do projeto (widgets/card_resumo.dart).
+          // Os parâmetros required personalizam cada cartão e
+          // aoTocar é o callback executado quando o usuário toca nele.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Seu espaço',
+                  style: Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                CardResumo(
+                  icone: Icons.person_outline,
+                  titulo: 'Meu perfil',
+                  descricao: 'Edite seus dados pessoais.',
+                  aoTocar: () => navegar(context, 'perfil'),
+                ),
+                CardResumo(
+                  icone: Icons.favorite_outline,
+                  titulo: 'Interesses',
+                  descricao: 'Escolha o que você gosta de assistir.',
+                  aoTocar: () => navegar(context, 'interesses'),
+                ),
+                CardResumo(
+                  icone: Icons.settings_outlined,
+                  titulo: 'Configurações',
+                  descricao: 'Alterne entre tema claro e escuro.',
+                  aoTocar: () => navegar(context, 'configuracoes'),
+                ),
+              ],
+            ),
           ),
 
           const SizedBox(height: 24),
